@@ -53,14 +53,18 @@ export async function scanPurchases(
   resize: boolean,
   resizeWidth: number,
   grayscale: boolean,
-  normalize: boolean
+  normalize: boolean,
+  threshold: boolean,
+  thresholdValue: number
 ) {
   const extractedText = await imageTextRecognitionService.extractTextFromImage(
     image,
     resize,
     resizeWidth,
     grayscale,
-    normalize
+    normalize,
+    threshold,
+    thresholdValue
   );
   const textParts = extractedText.split("\n");
   const purchases: { title?: string; value?: number; date?: string }[] = [];

@@ -12,7 +12,9 @@ export async function extractTextFromImage(
   resize: boolean,
   resizeWidth: number,
   grayscale: boolean,
-  normalize: boolean
+  normalize: boolean,
+  threshold: boolean,
+  thresholdValue: number
 ) {
   await clearDebugDirectory();
   const fileId = file.originalname.split(".")[0];
@@ -24,6 +26,8 @@ export async function extractTextFromImage(
       resizeWidth,
       grayscale,
       normalize,
+      threshold,
+      thresholdValue,
       fileId
     );
   } catch (err: any) {
@@ -51,6 +55,8 @@ async function preprocessBuffer(
   resizeWidth: number,
   grayscale: boolean,
   normalize: boolean,
+  threshold: boolean,
+  thresholdValue: number,
   fileId: string
 ) {
   let image = sharp(buffer);
@@ -69,6 +75,11 @@ async function preprocessBuffer(
   if (normalize) {
     image = image.normalize();
     await saveDebugImage(image.clone(), "03_normalized", fileId);
+  }
+
+  if (threshold && thresholdValue >= 0) {
+    image = image.threshold(Math.min(255, thresholdValue));
+    await saveDebugImage(image.clone(), "04_threshold", fileId);
   }
 
   return image.toBuffer();

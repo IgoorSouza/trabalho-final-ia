@@ -75,13 +75,22 @@ export default function purchaseController(app: Express) {
         throw new BadRequestException("Field 'file' is required.");
       }
 
-      const { resize, resizeWidth, grayscale, normalize } = req.query;
+      const {
+        resize,
+        resizeWidth,
+        grayscale,
+        normalize,
+        threshold,
+        thresholdValue,
+      } = req.query;
       const response = await purchaseService.scanPurchases(
         req.file,
         resize === "true",
         parseInt(resizeWidth as string),
         grayscale === "true",
-        normalize === "true"
+        normalize === "true",
+        threshold === "true",
+        parseInt(thresholdValue as string)
       );
 
       return res.json(response);

@@ -36,6 +36,8 @@ export default function PurchaseScanner({ customers, handleSaveBatch }: Props) {
   const [resizeWidth, setResizeWidth] = useState(1200);
   const [grayscale, setGrayscale] = useState(true);
   const [normalize, setNormalize] = useState(true);
+  const [threshold, setThreshold] = useState(false);
+  const [thresholdValue, setThresholdValue] = useState(128);
   const [errors, setErrors] = useState({
     title: false,
     value: false,
@@ -78,6 +80,8 @@ export default function PurchaseScanner({ customers, handleSaveBatch }: Props) {
           resizeWidth,
           grayscale,
           normalize,
+          threshold,
+          thresholdValue,
         },
       });
 
@@ -96,6 +100,12 @@ export default function PurchaseScanner({ customers, handleSaveBatch }: Props) {
       );
       setIsReviewing(true);
       setCurrentPage(0);
+      setResize(true);
+      setGrayscale(true);
+      setNormalize(true);
+      setResizeWidth(1200);
+      setThreshold(false);
+      setThresholdValue(128);
     } catch (error) {
       if (error instanceof AxiosError && error.status === 400) {
         toast.error(
@@ -108,10 +118,6 @@ export default function PurchaseScanner({ customers, handleSaveBatch }: Props) {
       toast.error("Erro ao escanear a imagem. Por favor, tente novamente.");
     } finally {
       setIsScanning(false);
-      setResize(true);
-      setResizeWidth(1200);
-      setGrayscale(true);
-      setNormalize(true);
     }
   };
 
@@ -127,6 +133,8 @@ export default function PurchaseScanner({ customers, handleSaveBatch }: Props) {
     setResizeWidth(1200);
     setGrayscale(true);
     setNormalize(true);
+    setThreshold(false);
+    setThresholdValue(128);
     setErrors({
       title: false,
       value: false,
@@ -266,7 +274,7 @@ export default function PurchaseScanner({ customers, handleSaveBatch }: Props) {
                   Imagem da Página de Compras{" "}
                   <span className="text-destructive ml-[-6px]">*</span>
                 </Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:border-primary transition-colors">
                   <input
                     type="file"
                     accept="image/*"
@@ -279,7 +287,7 @@ export default function PurchaseScanner({ customers, handleSaveBatch }: Props) {
                     className="cursor-pointer flex flex-col items-center"
                   >
                     {preview ? (
-                      <div className="space-y-3">
+                      <div className="space-y-1">
                         <img
                           src={preview}
                           alt="Preview"
@@ -364,6 +372,42 @@ export default function PurchaseScanner({ customers, handleSaveBatch }: Props) {
                     Normalizar
                   </Label>
                 </div>
+
+                <div className="flex gap-x-2 items-center">
+                  <Input
+                    type="checkbox"
+                    id="threshold"
+                    className="size-4"
+                    checked={threshold}
+                    onChange={() => setThreshold((prev) => !prev)}
+                  />
+                  <Label htmlFor="threshold" className="font-normal">
+                    Threshold
+                  </Label>
+                </div>
+
+                {threshold && (
+                  <div className="flex gap-x-2 ml-8">
+                    <Label htmlFor="resize-width" className="font-normal">
+                      Valor (0 - 255):
+                    </Label>
+
+                    <span className="text-destructive ml-[-6px]">*</span>
+
+                    <Input
+                      id="resize-width"
+                      type="number"
+                      min="0"
+                      max="255"
+                      placeholder="Ex: 128"
+                      value={thresholdValue}
+                      onChange={(e) =>
+                        setThresholdValue(Number(e.target.value))
+                      }
+                      className="w-24"
+                    />
+                  </div>
+                )}
               </div>
 
               <DialogFooter>
