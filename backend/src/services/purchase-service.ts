@@ -70,19 +70,23 @@ export async function scanPurchases(
   const purchases: { title?: string; value?: number; date?: string }[] = [];
 
   textParts.forEach((part) => {
+    const datePart = normalizeStringIfIsDate(part);
     const numberPart = Number(
       part.replaceAll(",", ".").replaceAll(":", ".").replaceAll(";", ".")
     );
 
-    if (Number.isFinite(numberPart)) {
-      if (purchases.length > 0) {
-        purchases[purchases.length - 1].value = numberPart;
-      }
-    } else if (
-      part.split("/").every((datePart) => Number.isInteger(Number(datePart)))
+    if (
+      datePart.includes("/") &&
+      datePart
+        .split("/")
+        .every((numberString) => Number.isInteger(Number(numberString)))
     ) {
       if (purchases.length > 0) {
-        purchases[purchases.length - 1].date = part;
+        purchases[purchases.length - 1].date = datePart;
+      }
+    } else if (Number.isFinite(numberPart)) {
+      if (purchases.length > 0) {
+        purchases[purchases.length - 1].value = numberPart;
       }
     } else {
       purchases.push({
@@ -110,4 +114,19 @@ async function throwErrorIfPurchaseNotExists(id: string) {
   if (!purchase) {
     throw new NotFoundException("Purchase not found.");
   }
+}
+
+function normalizeStringIfIsDate(string: string) {
+  if (
+    string.length < 9 ||
+    (!string.includes("/") && !Number.isFinite(Number(string)))
+  ) {
+    return string;
+  }
+
+  const year = string.slice(-4);
+  const day = string.slice(0, 2);
+  const month = day.length === 1 ? string.slice(2, 4) : string.slice(3, 5);
+
+  return `${day}/${month}/${year}`;
 }
